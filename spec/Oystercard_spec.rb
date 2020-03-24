@@ -3,7 +3,8 @@ require 'oystercard'
 describe Oystercard do
 
   let(:card) {Oystercard.new}
-  
+  let(:entry_station) {double :station, :touch_in => 'Oxford Circus'}
+
   it "has a #balance" do
     expect(subject::balance).to eq 0
   end
@@ -43,7 +44,7 @@ describe Oystercard do
 
   it "It registers a users card as in journy" do 
     card.top_up(10)
-    card.touch_in
+    card.touch_in(entry_station)
     expect(card::in_journey).to eq true
   end
 
@@ -57,12 +58,25 @@ describe Oystercard do
   end
 
   it 'fails to #touch_in if @balance bellow £1' do
-    expect{subject.touch_in}.to raise_error "Balance too low"
+    expect{subject.touch_in(entry_station)}.to raise_error "Balance too low"
   end
 
   it 'deducts the fare from the users card when touching out' do
     card.top_up(5)
-    card.touch_in
+    card.touch_in('Oxford Circus')
     expect{card.touch_out}.to change{card::balance}.by (-1)
+  end
+
+  it 'remebers station after #touch_in' do
+    card.top_up(5)
+    card.touch_in(entry_station)
+    expect(card.get_entry_station).to eq(entry_station)
+  end
+
+  it 'resets entry station when #touch_out' do
+    card.top_up(5)
+    card.touch_in(entry_station)
+    card.touch_out
+    expect(card::entry_station).to eq nil
   end
 end
