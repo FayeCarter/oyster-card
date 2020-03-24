@@ -1,5 +1,5 @@
 class Oystercard
-  attr_reader :balance, :limit, :in_journey, :entry_station
+  attr_reader :balance, :limit, :in_journey, :entry_station, :journey_history 
   CARD_LIMIT = 90
   MINIMUM_FARE = 1
 
@@ -8,8 +8,9 @@ class Oystercard
     @limit = CARD_LIMIT
     @in_journey = in_journey
     @entry_station = entry_station
+    @journey_history = []
   end
-
+  
   def top_up(money)
     if @balance + money > @limit
       raise 'exceeded limit of £90!'
@@ -28,7 +29,8 @@ class Oystercard
     @entry_station = entry_station
   end
 
-  def touch_out
+  def touch_out (exit_station)
+    @journey_history << [@entry_station, exit_station]
     @in_journey = false
     deduct
     @entry_station = nil

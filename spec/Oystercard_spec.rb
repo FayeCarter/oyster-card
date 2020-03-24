@@ -4,6 +4,7 @@ describe Oystercard do
 
   let(:card) {Oystercard.new}
   let(:entry_station) {double :station, :touch_in => 'Oxford Circus'}
+  let(:exit_station) {double :station, :touch_out => "St Pauls"}
 
   it "has a #balance" do
     expect(subject::balance).to eq 0
@@ -53,7 +54,7 @@ describe Oystercard do
   end
 
   it "It tracks when the user is no longer in a journey" do  
-    card.touch_out
+    card.touch_out(exit_station)
     expect(card::in_journey).to eq false  
   end
 
@@ -64,7 +65,7 @@ describe Oystercard do
   it 'deducts the fare from the users card when touching out' do
     card.top_up(5)
     card.touch_in('Oxford Circus')
-    expect{card.touch_out}.to change{card::balance}.by (-1)
+    expect{card.touch_out(exit_station)}.to change{card::balance}.by (-1)
   end
 
   it 'remebers station after #touch_in' do
@@ -76,7 +77,19 @@ describe Oystercard do
   it 'resets entry station when #touch_out' do
     card.top_up(5)
     card.touch_in(entry_station)
-    card.touch_out
+    card.touch_out(exit_station)
     expect(card::entry_station).to eq nil
   end
+
+  it "check to see if the journy list is empty by default" do
+    card = Oystercard.new 
+    expect(card::journey_history).to eq []
+  end
+
+  it "saves your last journy to list" do
+    card.top_up(5)
+    card.touch_in(entry_station)
+    card.touch_out(exit_station)
+    expect(card::journey_history.last).to eq [entry_station, exit_station] 
+  end 
 end
