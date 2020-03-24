@@ -42,6 +42,7 @@ describe Oystercard do
   end
 
   it "It registers a users card as in journy" do 
+    card.top_up(10)
     card.touch_in
     expect(card::in_journey).to eq true
   end
@@ -53,6 +54,10 @@ describe Oystercard do
   it "It tracks when the user is no longer in a journey" do  
     card.touch_out
     expect(card::in_journey).to eq false  
+  end
+
+  it 'fails to #touch_in if @balance bellow £1' do
+    expect{subject.touch_in}.to raise_error "Balance too low"
   end
 
 end
