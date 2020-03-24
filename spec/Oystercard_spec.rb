@@ -18,8 +18,8 @@ describe Oystercard do
   end
 
   it "#deduct fair from balance" do
-    card.top_up(5)
-    card.deduct(5)
+    card.top_up(1)
+    card.send(:deduct)
     expect(subject::balance).to eq 0
   end
 
@@ -60,4 +60,9 @@ describe Oystercard do
     expect{subject.touch_in}.to raise_error "Balance too low"
   end
 
+  it 'deducts the fare from the users card when touching out' do
+    card.top_up(5)
+    card.touch_in
+    expect{card.touch_out}.to change{card::balance}.by (-1)
+  end
 end
